@@ -351,7 +351,6 @@ const SEED = [
     dauer:"10 Min.",
     portionen:2,
     bild:"assets/cacio-hero.jpg",
-    bilder:["assets/cacio-1.jpg","assets/cacio-2.jpg","assets/cacio-3.jpg"],
     quelle:"https://www.youtube.com/watch?v=-zLUHP5Gvzw",
     zutaten:[
       {menge:200, einheit:"g", name:"Spaghetti (oder Tonnarelli)"},
@@ -376,7 +375,6 @@ const SEED = [
     dauer:"30 Min.",
     portionen:4,
     bild:"assets/nasi-hero.jpg",
-    bilder:["assets/nasi-1.jpg","assets/nasi-2.jpg","assets/nasi-3.jpg"],
     quelle:"https://www.youtube.com/watch?v=i9Uwdc2cw4g&t=53s",
     zutaten:[
       {menge:3, einheit:"EL", name:"Kecap Manis (süße Sojasauce)"},
@@ -411,7 +409,6 @@ const SEED = [
     dauer:"20 Min.",
     portionen:4,
     bild:"assets/khao-hero.jpg",
-    bilder:["assets/khao-1.jpg","assets/khao-2.jpg"],
     quelle:"https://www.youtube.com/watch?v=i9Uwdc2cw4g&t=411s",
     zutaten:[
       {menge:16, einheit:"", name:"Garnelen, geschält und entdarmt"},
@@ -446,7 +443,6 @@ const SEED = [
     dauer:"20 Min.",
     portionen:4,
     bild:"assets/sin-hero.jpg",
-    bilder:["assets/sin-1.jpg","assets/sin-2.jpg"],
     quelle:"https://www.youtube.com/watch?v=i9Uwdc2cw4g&t=627s",
     zutaten:[
       {menge:1, einheit:"", name:"große Knolle Knoblauch, geschält und fein gewürfelt"},
@@ -475,12 +471,16 @@ let REZEPTE = [];
 let filterKategorie = "alle";
 let suchbegriff = "";
 
-/* SEED per id in Bestand mergen (nicht überschreiben) */
+/* SEED in den Bestand mergen.
+   SEED ist für die eingebauten Rezepte maßgeblich (damit Updates – z.B. neue
+   Bilder – ankommen). Vom Nutzer gelöschte SEED-Rezepte bleiben gelöscht,
+   eigene (importierte) Rezepte bleiben unangetastet. */
 function mergeSeed(gespeichert){
-  const vorhandeneIds = new Set(gespeichert.map(r=>r.id));
   const geloescht = new Set(loadGeloescht());
-  const neue = SEED.filter(s=>!vorhandeneIds.has(s.id) && !geloescht.has(s.id));
-  return gespeichert.concat(neue.map(clone));
+  const seedIds = new Set(SEED.map(s=>s.id));
+  const seeds = SEED.filter(s=>!geloescht.has(s.id)).map(clone);
+  const eigene = gespeichert.filter(r=>!seedIds.has(r.id));
+  return seeds.concat(eigene);
 }
 /* Merkt sich vom Nutzer gelöschte SEED-Ids, damit sie nicht wiederkommen */
 function loadGeloescht(){
